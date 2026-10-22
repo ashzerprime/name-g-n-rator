@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Générateur de sons</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: Arial, sans-serif;
+  background: #fff;
+  color: #000;
+}
+
+main {
+  width: 100%;
+  max-width: 360px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: normal;
+  text-align: center;
+}
+
+p {
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin: 32px 0 12px;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  margin: 0;
+}
+
+#resultat {
+  min-height: 90px;
+  margin: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-wrap: anywhere;
+  font-size: 24px;
+  text-align: center;
+}
+
+.bouton {
+  display: block;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font-family: inherit;
+  font-size: 15px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Générateur de sons</h1>
+  <p>Des suites aléatoires et prononçables.</p>
+
+  <label for="longueur">
+    Nombre de lettres : <span id="nombre">6</span>
+  </label>
+
+  <input id="longueur" type="range" min="2" max="20" value="6">
+
+  <div id="resultat" aria-live="polite">Maviro</div>
+
+  <button id="generer" class="bouton" type="button">Générer</button>
+  <a class="bouton" href="https://www.youtube.com/@Eerfix"
+     target="_blank" rel="noopener noreferrer">YouTube</a>
+</main>
+
+<script>
+const longueur = document.getElementById("longueur");
+const nombre = document.getElementById("nombre");
+const resultat = document.getElementById("resultat");
+const bouton = document.getElementById("generer");
+
+const debuts = [
+  "m", "l", "r", "v", "s", "t", "n", "k",
+  "p", "b", "d", "f", "z", "ch", "j", "g"
+];
+const debutsSimples = debuts.filter(d => d.length === 1);
+
+const voyellesSimples = ["a", "e", "i", "o", "u", "é"];
+const voyelles = [...voyellesSimples, "ou", "an", "on"];
+
+const fins = ["m", "n", "l", "r", "s", "t", "k", "v"];
+
+function choisir(liste) {
+  return liste[Math.floor(Math.random() * liste.length)];
+}
+
+function estVoyelle(lettre) {
+  return "aeiouyé".includes(lettre);
+}
+
+function generer() {
+  const cible = Number(longueur.value);
+  let mot = "";
+
+  while (mot.length < cible) {
+    const restant = cible - mot.length;
+    let morceau;
+
+    if (restant === 1) {
+      // Dernière lettre : jamais une consonne isolée après une consonne
+      morceau = estVoyelle(mot.slice(-1)) ? choisir(fins) : "e";
+    } else {
+      morceau = choisir(debuts) + choisir(voyelles);
+
+      // Si la syllabe dépasse la longueur voulue, on prend une syllabe de 2 lettres
+      if (morceau.length > restant) {
+        morceau = choisir(debutsSimples) + choisir(voyellesSimples);
+      }
+    }
+
+    mot += morceau;
+  }
+
+  resultat.textContent = mot.charAt(0).toUpperCase() + mot.slice(1);
+}
+
+longueur.addEventListener("input", () => {
+  nombre.textContent = longueur.value;
+});
+
+bouton.addEventListener("click", generer);
+</script>
+</body>
+</html>
